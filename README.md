@@ -16,95 +16,9 @@ Trợ lý y tế thông minh hỗ trợ chăm sóc sức khỏe gia đình 24/7.
 
 ---
 
-## 🚀 Quick Start — Run Locally with Docker
 
-### 1. Prerequisites
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
-- A [Gemini API key](https://aistudio.google.com/apikey) (free)
 
-### 2. Configure environment
-```bash
-# In the project root (chatbot-bac-si/)
-copy .env.example .env
-```
-Open `.env` and paste your Gemini API key:
-```
-GEMINI_API_KEY=AIza...your_key_here
-```
-
-### 3. Build and run
-```bash
-docker-compose up --build
-```
-
-### 4. Open in browser
-```
-http://localhost
-```
-
-The app will be live at `http://localhost`. API docs at `http://localhost/api/docs`.
-
----
-
-## 🌐 Production Deployment
-
-### Backend → Hugging Face Spaces
-
-1. Create a new Space at https://huggingface.co/new-space
-   - Space type: **Docker**
-   - Visibility: **Public**
-
-2. Push the `backend/` folder as a separate HF repo:
-```bash
-git init
-git remote add origin https://huggingface.co/spaces/YOUR_USERNAME/chatbot-bac-si
-git add .
-git commit -m "Initial deploy"
-git push origin main
-```
-
-3. Add your Gemini API key in HF Spaces:
-   - Go to your Space → **Settings** → **Repository secrets**
-   - Add `GEMINI_API_KEY = AIza...`
-   - Add `DATABASE_URL = sqlite:////data/chatbot.db`
-
-4. Your backend will be live at:
-   ```
-   https://YOUR_USERNAME-chatbot-bac-si.hf.space
-   ```
-
-### Frontend → GitHub Pages
-
-1. Push the full repo to GitHub:
-```bash
-git init
-git remote add origin https://github.com/YOUR_USERNAME/chatbot-bac-si
-git add .
-git commit -m "Initial commit"
-git push origin main
-```
-
-2. Add the backend URL as a GitHub Secret:
-   - Go to repo → **Settings** → **Secrets and variables** → **Actions**
-   - Add: `VITE_API_URL = https://YOUR_USERNAME-chatbot-bac-si.hf.space/api`
-
-3. Enable GitHub Pages:
-   - Go to repo → **Settings** → **Pages**
-   - Source: **GitHub Actions**
-
-4. Push any change to `main` to trigger auto-deploy. Your frontend will be live at:
-   ```
-   https://YOUR_USERNAME.github.io/chatbot-bac-si/
-   ```
-
-5. Update `frontend/vite.config.js` base path to match your repo name:
-```js
-base: '/chatbot-bac-si/',  // ← must match your GitHub repo name
-```
-
----
-
-## 📁 Project Structure
+Project Structure
 
 ```
 chatbot-bac-si/
@@ -144,7 +58,7 @@ chatbot-bac-si/
 
 ---
 
-## 🔌 API Reference
+API Reference
 
 ### `POST /api/chat`
 ```json
@@ -177,7 +91,7 @@ Health check endpoint.
 
 ---
 
-## 📋 Mapping to Sprint Backlog
+Mapping to Sprint Backlog
 
 | User Story | Feature | Implementation |
 |---|---|---|
