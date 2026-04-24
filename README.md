@@ -1,8 +1,8 @@
-# Chatbot Bác sĩ Gia Đình 🏥
+Chatbot Bác sĩ Gia Đình
 
 Trợ lý y tế thông minh hỗ trợ chăm sóc sức khỏe gia đình 24/7.
 
-## Tech Stack
+Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -95,7 +95,7 @@ Mapping to Sprint Backlog
 
 | User Story | Feature | Implementation |
 |---|---|---|
-| US-01 | Vietnamese NLP input | Gemini handles Vietnamese natively |
+| US-01 | Vietnamese NLP input | Groq handles Vietnamese natively |
 | US-02 | 3-level urgency classification | `[URGENCY:...]` tag parsed from Gemini |
 | US-03 | Basic info gathering flow | System prompt instructs follow-up Qs |
 | US-04 | Elderly UI (large text) | Elderly mode toggle in header |
