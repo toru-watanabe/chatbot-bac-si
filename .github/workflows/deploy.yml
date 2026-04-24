@@ -35,7 +35,7 @@ jobs:
       - name: Build
         working-directory: frontend
         env:
-          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_API_URL: https://pham-tien-anh-chatbot-bac-si.hf.space/api
           # Must match your GitHub repo name exactly
           VITE_BASE_URL: /chatbot-bac-si/
         run: npm run build
