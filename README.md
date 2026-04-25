@@ -177,41 +177,109 @@ Kiểm tra trạng thái hoạt động của hệ thống.
 
 ---
 
-## Kiểm thử API
+## Kiểm thử API chi tiết
 
-Phần này hướng dẫn cách kiểm thử các điểm cuối API của hệ thống để đảm bảo tính chính xác và độ tin cậy.
+Phần này cung cấp các kịch bản kiểm thử toàn diện cho mọi điểm cuối (endpoint) của hệ thống để đảm bảo tính chính xác và độ tin cậy.
 
 ### 1. Kiểm thử thủ công với Swagger UI
-FastAPI tự động tạo tài liệu API và giao diện kiểm thử trực quan.
-- Sau khi chạy ứng dụng (thông qua Docker hoặc chạy trực tiếp backend), hãy truy cập `http://localhost:8000/docs` hoặc `http://localhost/api/docs`.
-- Tại đây, bạn có thể xem chi tiết từng điểm cuối, điền tham số và gửi yêu cầu thử nghiệm trực tiếp từ trình duyệt.
+FastAPI cung cấp giao diện Swagger UI tự động tạo tại `http://localhost:8000/docs` (nếu chạy trực tiếp) hoặc `http://localhost/api/docs` (nếu chạy qua Docker). Tại đây, bạn có thể xem chi tiết từng điểm cuối, điền tham số và gửi yêu cầu thử nghiệm trực tiếp từ trình duyệt mà không cần công cụ bên thứ ba.
 
-### 2. Sử dụng cURL để kiểm thử
+### 2. Các kịch bản kiểm thử (Test Cases) qua cURL
 
-**Kiểm tra trạng thái hoạt động:**
+#### 2.1. API Kiểm tra trạng thái hệ thống (`GET /api/health`)
+Đảm bảo backend đang hoạt động ổn định.
+**Yêu cầu:**
 ```bash
 curl -X GET http://localhost/api/health
 ```
+**Phản hồi mong đợi:**
+```json
+{
+  "status": "ok",
+  "message": "Service is running"
+}
+```
 
-**Gửi một tin nhắn trò chuyện mới:**
+#### 2.2. API Trò chuyện (`POST /api/chat`)
+API này là cốt lõi của hệ thống, xử lý tin nhắn và phân loại mức độ khẩn cấp. Bạn có thể kiểm thử các đối tượng (persona) khác nhau.
+
+**Kịch bản 1: Hỏi đáp chung (persona: `general`)**
 ```bash
 curl -X POST http://localhost/api/chat \
   -H "Content-Type: application/json" \
-  -d '{"message": "Chào bác sĩ, tôi bị đau đầu từ hôm qua", "session_id": "test-session-123", "persona": "general"}'
+  -d '{
+    "message": "Tôi bị đau đầu và chóng mặt từ sáng nay.",
+    "session_id": "test-session-001",
+    "persona": "general"
+  }'
 ```
+*Phản hồi mong đợi:* Hệ thống trả về câu hỏi khai thác thêm triệu chứng, kèm theo `urgency_level` (ví dụ: `monitor`), màu sắc `urgency_color`, và dòng cảnh báo y tế `disclaimer`.
 
-**Lấy lịch sử trò chuyện:**
+**Kịch bản 2: Hỏi đáp về trẻ em (persona: `mother`)**
 ```bash
-curl -X GET http://localhost/api/sessions/test-session-123/history
+curl -X POST http://localhost/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "Bé nhà tôi 3 tuổi, bị sốt 39 độ và quấy khóc liên tục.",
+    "session_id": "test-session-002",
+    "persona": "mother"
+  }'
 ```
+*Phản hồi mong đợi:* AI đóng vai bác sĩ nhi khoa, hỏi thêm về cân nặng, biểu hiện khác và thường xếp mức độ khẩn cấp là `emergency` hoặc `consult_doctor` do sốt cao ở trẻ nhỏ.
 
-**Xóa phiên trò chuyện:**
+**Kịch bản 3: Tình huống khẩn cấp**
 ```bash
-curl -X DELETE http://localhost/api/sessions/test-session-123
+curl -X POST http://localhost/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "Bố tôi tự nhiên ôm ngực gục xuống, khó thở.",
+    "session_id": "test-session-003",
+    "persona": "general"
+  }'
+```
+*Phản hồi mong đợi:* Hệ thống phải nhận diện đây là tình huống nguy hiểm, trả về `urgency_level` là `emergency` và khuyên người dùng gọi cấp cứu ngay lập tức.
+
+#### 2.3. API Lấy lịch sử trò chuyện (`GET /api/sessions/{session_id}/history`)
+Lấy lại các tin nhắn đã trao đổi trong một phiên cụ thể.
+**Yêu cầu:**
+```bash
+curl -X GET http://localhost/api/sessions/test-session-001/history
+```
+**Phản hồi mong đợi:** Một mảng JSON chứa các đối tượng tin nhắn của người dùng và bot.
+```json
+[
+  {"role": "user", "content": "Tôi bị đau đầu và chóng mặt từ sáng nay.", "timestamp": "2026-04-25T10:00:00"},
+  {"role": "bot", "content": "Bạn đã uống thuốc gì chưa?...", "timestamp": "2026-04-25T10:00:05"}
+]
 ```
 
-### 3. Viết kịch bản kiểm thử tự động
-Bạn có thể sử dụng thư viện `pytest` và `httpx` của Python để viết các kịch bản kiểm thử tự động cho backend. Tạo một thư mục `tests` trong thư mục `backend` và thêm các bài kiểm thử kiểm tra tính hợp lệ của dữ liệu đầu vào, đầu ra, và các kịch bản khẩn cấp.
+#### 2.4. API Xóa lịch sử phiên (`DELETE /api/sessions/{session_id}`)
+Xóa toàn bộ lịch sử để bắt đầu phiên trò chuyện mới.
+**Yêu cầu:**
+```bash
+curl -X DELETE http://localhost/api/sessions/test-session-001
+```
+**Phản hồi mong đợi:**
+```json
+{
+  "message": "Session deleted successfully"
+}
+```
+
+### 3. Kiểm thử lỗi (Error Handling)
+Kiểm tra xem hệ thống có bắt lỗi và trả về mã lỗi HTTP chính xác khi gửi thiếu tham số.
+```bash
+curl -X POST http://localhost/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Chào bác sĩ"}' 
+```
+*Phản hồi mong đợi:* Trả về mã lỗi `HTTP 422 Unprocessable Entity` kèm thông báo JSON chỉ ra các trường còn thiếu (thiếu `session_id` và `persona`).
+
+### 4. Viết kịch bản kiểm thử tự động với Pytest
+Bạn có thể sử dụng thư viện `pytest` và `httpx` của Python để tự động hóa toàn bộ các kịch bản kiểm thử API trên:
+1. Cài đặt các gói cần thiết: `pip install pytest httpx`
+2. Tạo thư mục `tests/` trong `backend/` và viết các file test.
+3. Khởi chạy bằng lệnh `pytest backend/tests/` để hệ thống tự động kiểm tra đầu vào, đầu ra, và các tình huống ngoại lệ.
 
 ---
 
