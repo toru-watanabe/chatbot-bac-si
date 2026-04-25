@@ -103,3 +103,8 @@ Mapping to Sprint Backlog
 | US-06 | Children flow | `persona: "mother"` system prompt |
 | US-07 | Chat history in session | SQLite `messages` table |
 | US-08 | QA test cases | See `/api/docs` Swagger for manual testing |
+
+
+Install guide
+Backend : HuggingFace for Gemini/Groq API call
+Frontend: Deploy on Github Actions
